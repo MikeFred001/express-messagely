@@ -23,6 +23,60 @@ CREATE TABLE messages (
   sent_at TIMESTAMP WITH TIME ZONE NOT NULL,
   read_at TIMESTAMP WITH TIME ZONE);
 
+/********************************* DB SEEDS *********************************/
+
+INSERT INTO users ( username,
+                    password,
+                    first_name,
+                    last_name,
+                    phone,
+                    join_at,
+                    last_login_at)
+    VALUES ('mikefred',
+            'password123',
+            'mike',
+            'fred',
+            '555-555-5555',
+            current_timestamp,
+            current_timestamp),
+
+            ('didiwu',
+            'password123',
+            'didi',
+            'wu',
+            '555-555-5555',
+            current_timestamp,
+            current_timestamp),
+
+            ('johnsmith',
+            'password123',
+            'john',
+            'smith',
+            '555-555-5555',
+            current_timestamp,
+            current_timestamp);
+
+
+INSERT INTO messages ( from_username, to_username, body, sent_at, read_at)
+    VALUES ('mikefred',
+            'didiwu',
+            'from mike to didi',
+            current_timestamp,
+            current_timestamp),
+
+            ('didiwu',
+            'mikefred',
+            'from didi to mike',
+            current_timestamp,
+            current_timestamp),
+
+            ('johnsmith',
+            'didiwu',
+            'from john to didi',
+            current_timestamp,
+            current_timestamp);
+
+
 
 \echo 'Delete and recreate messagely_test db?'
 \prompt 'Return for yes or control-C to cancel > ' foo
