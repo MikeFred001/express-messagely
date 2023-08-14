@@ -55,6 +55,8 @@ class User {
         WHERE username = $1
         RETURNING username, last_login_at
     `, [username]);
+
+    // TODO: Error catching, check returned user
   }
 
   /** All: basic info on all users:
@@ -64,7 +66,7 @@ class User {
     const result = await db.query(`
       SELECT username, first_name, last_name
         FROM users
-    `);
+    `); // TODO: ORDER BY
 
     return result.rows;
   }
@@ -93,7 +95,7 @@ class User {
     );
 
     return result.rows[0];
-
+    // TODO: Express error handling
   }
 
   /** Return messages from this user.
@@ -146,7 +148,7 @@ class User {
    */
 
   static async messagesTo(username) {
-
+    // TODO: Check that user being queried exists, handle error if not.
     const result = await db.query(`
       SELECT m.id,
              u.username,
