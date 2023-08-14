@@ -2,6 +2,8 @@
 
 const { BCRYPT_WORK_FACTOR, SECRET_KEY } = require("../config");
 const db = require("../db");
+const bcrypt = require('bcrypt');
+const { NotFoundError } = require("../expressError");
 
 /** User of the site. */
 
@@ -14,8 +16,14 @@ class User {
   static async register({ username, password, first_name, last_name, phone }) {
     const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
     const result = await db.query(`
-      INSERT INTO users (username, password, first_name, last_name, phone)
-        VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO users (
+                          username,
+                          password,
+                          first_name,
+                          last_name,
+                          phone,
+                          join_at)
+        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
         RETURNING username, password, first_name, last_name, phone
     `, [username, hashedPassword, first_name, last_name, phone]
     );
@@ -41,11 +49,18 @@ class User {
   /** Update last_login_at for user */
 
   static async updateLoginTimestamp(username) {
-    await db.query(`
+    const result = await db.query(`
       UPDATE users
-        SET last_login_at = TIMESTAMP WITH TIME ZONE
+        SET last_login_at = CURRENT_TIMESTAMP
         WHERE username = $1
+        RETURNING username, last_login_at
     `, [username]);
+
+    const userAfterUpdate = result.rows[0];
+
+    if (!userAfterUpdate) {
+      throw new NotFoundError();
+    }
   }
 
   /** All: basic info on all users:
@@ -107,15 +122,25 @@ class User {
            m.read_at
     FROM messages AS m
     JOIN user AS u
-    ON m.from_username = u.username
+    ON m.to_username = u.username
     WHERE from_username = $1
     `, [username]
     );
 
-
-
-
-
+    return result.rows.map(r => {
+      return {
+        id: r.id,
+        body: r.body,
+        sent_at: r.sent_at,
+        read_at: r.read_at,
+        to_user: {
+          username: r.username,
+          first_name: r.first_name,
+          last_name: r.last_name,
+          phone: r.phone
+        }
+      };
+    });
   }
 
   /** Return messages to this user.
@@ -127,8 +152,41 @@ class User {
    */
 
   static async messagesTo(username) {
+
+    const result = await db.query(`
+    SELECT m.id,
+           u.username,
+           u.firstname,
+           u.lastname,
+           u.phone
+           m.body,
+           m.sent_at,
+           m.read_at
+    FROM messages AS m
+    JOIN user AS u
+    ON m.from_username = u.username
+    WHERE to_username = $1
+    `, [username]
+    );
+
+    return result.rows.map(r => {
+      return {
+        id: r.id,
+        body: r.body,
+        sent_at: r.sent_at,
+        read_at: r.read_at,
+        from_user: {
+          username: r.username,
+          first_name: r.first_name,
+          last_name: r.last_name,
+          phone: r.phone
+        }
+      };
+    });
   }
 }
+
+
 
 
 module.exports = User;

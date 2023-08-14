@@ -4,6 +4,8 @@ const db = require("../db");
 const User = require("./user");
 const Message = require("./message");
 
+// const bcrypt = require('bcrypt');
+
 
 describe("Test User class", function () {
   beforeEach(async function () {
