@@ -1,5 +1,7 @@
 "use strict";
 
+
+
 /** Middleware for handling req authorization for routes. */
 
 const jwt = require("jsonwebtoken");
@@ -25,6 +27,7 @@ function authenticateJWT(req, res, next) {
 /** Middleware: Requires user is authenticated. */
 
 function ensureLoggedIn(req, res, next) {
+
   if (!res.locals.user) throw new UnauthorizedError();
 
   return next();
@@ -36,9 +39,9 @@ function ensureCorrectUser(req, res, next) {
   const currentUser = res.locals.user;
   const hasUnauthorizedUsername = currentUser?.username !== req.params.username;
 
-if (!currentUser || hasUnauthorizedUsername){
-  throw new UnauthorizedError();
-} 
+  if (!currentUser || hasUnauthorizedUsername) {
+    throw new UnauthorizedError();
+  }
 
   return next();
 }

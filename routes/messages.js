@@ -2,7 +2,11 @@
 
 const Router = require("express").Router;
 const Message = require("../models/message");
-const { NotFoundError } = require("../expressError");
+const { NotFoundError, UnauthorizedError } = require("../expressError");
+const {
+  ensureLoggedIn,
+  ensureCorrectUser,
+} = require('../middleware/auth');
 
 const router = new Router();
 
@@ -18,21 +22,25 @@ const router = new Router();
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
  **/
-router.get("/:id", async function(req, res, next) {
-  const message = await Message.get(req.params.id);
+router.get("/:id", ensureLoggedIn, async function (req, res, next) {
 
-  if(message === undefined) throw new NotFoundError();
+  const message = await Message.get(req.params.id);
+  console.log('message = ', message);
+
+  if (message === undefined) throw new NotFoundError();
+
   const currUser = res.locals.user;
 
   // if currUser in User.messagesTo || currUser in User.messagesFrom
 
-  if(currUser.username === message.from_user?.username ||
-      currUser.username === message.to_user?.username) {
-     return res.json({ message });
+  if (currUser.username === message.from_user?.username ||
+    currUser.username === message.to_user?.username) {
+    return res.json({ message });
   }
 
-  return res.json({ message });
-})
+  throw new UnauthorizedError();
+
+});
 
 
 /** POST / - post message.
@@ -41,6 +49,8 @@ router.get("/:id", async function(req, res, next) {
  *   {message: {id, from_username, to_username, body, sent_at}}
  *
  **/
+
+// router.post()
 
 
 /** POST/:id/read - mark message as read:
