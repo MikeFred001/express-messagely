@@ -15,8 +15,8 @@ const {
  *
  * => {users: [{username, first_name, last_name}, ...]}
  *
+ * Ensures that user is logged in, otherwise throws an error.
  **/
-// TODO: update docstring with middleware info
 router.get('/', ensureLoggedIn, async function (req, res, next) {
   const users = await User.all();
 
@@ -29,12 +29,10 @@ router.get('/', ensureLoggedIn, async function (req, res, next) {
  *
  * => {user: {username, first_name, last_name, phone, join_at, last_login_at}}
  *
+ * Ensures that current user is the correct user, otherwise throws an error.
  **/
-// TODO: update docstring with middleware details
 router.get('/:username', ensureCorrectUser, async function (req, res, next) {
   const user = await User.get(req.params.username);
-
-  // if (user === undefined) throw new NotFoundError();
 
   return res.json({ user });
 });
@@ -49,8 +47,8 @@ router.get('/:username', ensureCorrectUser, async function (req, res, next) {
  *                 read_at,
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  *
+ * Ensures that the user is the correct user, otherwise throws an error.
  **/
-// TODO: update docstring with middleware details
 router.get('/:username/to', ensureCorrectUser, async function (req, res, next) {
   const messages = await User.messagesTo(req.params.username);
 
@@ -66,8 +64,8 @@ router.get('/:username/to', ensureCorrectUser, async function (req, res, next) {
  *                 read_at,
  *                 to_user: {username, first_name, last_name, phone}}, ...]}
  *
+ * Ensures that the user is the correct user, otherwise throws an error.
  **/
-// TODO: update docstring with middleware details
 router.get('/:username/from', ensureCorrectUser, async function (req, res, next) {
   const messages = await User.messagesFrom(req.params.username);
 

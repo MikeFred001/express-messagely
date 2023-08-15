@@ -20,19 +20,19 @@ const router = new Router();
  *
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
+ * Checks that user is logged in.
  **/
 router.get("/:id", ensureLoggedIn, async function (req, res, next) {
 
   const message = await Message.get(req.params.id);
 
   const currUser = res.locals.user;
-  // TODO: Check for failure condition first, AND condition
-  if (currUser.username === message.from_user?.username ||
-    currUser.username === message.to_user?.username) {
-    return res.json({ message });
+  if (currUser.username !== message.from_user?.username &&
+    currUser.username !== message.to_user?.username) {
+      throw new UnauthorizedError();
   }
 
-  throw new UnauthorizedError();
+  return res.json({ message });
 });
 
 
@@ -47,8 +47,7 @@ router.post('/', ensureLoggedIn, async function(req, res, next) {
   if(req.body === undefined) throw new BadRequestError();
 
   const from_username = res.locals.user.username;
-  const to_username = req.body.to_username;
-  const body = req.body.body; // TODO: destructure
+  const { to_username, body } = req.body;
 
   const message = await Message.create({ from_username, to_username, body });
 
@@ -68,13 +67,12 @@ router.post('/:id/read', ensureLoggedIn, async function(req, res, next) {
 
   const currUser = res.locals.user;
 
-  // TODO: Fail fast
-  if (currUser.username === msg.to_user.username) {
-    const message = await Message.markRead(req.params.id);
-    return res.json({ message });
+  if (currUser.username !== msg.to_user.username) {
+    throw new UnauthorizedError();
   }
 
-  throw new UnauthorizedError();
+  const message = await Message.markRead(req.params.id);
+  return res.json({ message });
 })
 
 
