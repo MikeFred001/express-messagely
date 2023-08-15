@@ -56,7 +56,13 @@ class User {
         RETURNING username, last_login_at
     `, [username]);
 
-    // TODO: Error catching, check returned user
+    const user = result.rows[0];
+
+    if (user === undefined) {
+      throw new NotFoundError();
+    }
+
+
   }
 
   /** All: basic info on all users:
@@ -66,7 +72,8 @@ class User {
     const result = await db.query(`
       SELECT username, first_name, last_name
         FROM users
-    `); // TODO: ORDER BY
+        ORDER BY username
+    `);
 
     return result.rows;
   }
@@ -94,8 +101,14 @@ class User {
       [username]
     );
 
-    return result.rows[0];
-    // TODO: Express error handling
+    const user = result.rows[0];
+
+    if (user === undefined) {
+      throw new NotFoundError();
+    }
+
+    return user;
+
   }
 
   /** Return messages from this user.
@@ -107,6 +120,19 @@ class User {
    */
 
   static async messagesFrom(username) {
+
+    const uResult = await db.query(`
+    SELECT username
+    FROM users
+    WHERE username = $1
+    `, [username]);
+
+    const user = uResult.rows[0];
+
+    if (user === undefined) {
+      throw new NotFoundError();
+    }
+
     const result = await db.query(`
       SELECT m.id,
             u.username,
@@ -148,7 +174,20 @@ class User {
    */
 
   static async messagesTo(username) {
-    // TODO: Check that user being queried exists, handle error if not.
+
+    const uResult = await db.query(`
+      SELECT username
+      FROM users
+      WHERE username = $1
+      `, [username]);
+
+    const user = uResult.rows[0];
+
+    if (user === undefined) {
+      throw new NotFoundError();
+    }
+
+
     const result = await db.query(`
       SELECT m.id,
              u.username,
