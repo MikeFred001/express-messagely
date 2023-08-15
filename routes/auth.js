@@ -1,7 +1,7 @@
 "use strict";
 
 const Router = require("express").Router;
-const { NotFoundError, UnauthorizedError, BadRequestError } = require("../expressError");
+const { UnauthorizedError, BadRequestError } = require("../expressError");
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require("../config");
@@ -15,10 +15,11 @@ router.post('/login', async function (req, res, next) {
   if (req.body === undefined) throw new BadRequestError();
   const { username, password } = req.body;
 
-
+  // TODO: Pass authentication boolean to a variable
+  // TODO: Change logic to check for failure first
+  // TODO: Update login timestamp
   if (await User.authenticate(username, password) === true) {
     const token = jwt.sign({ username }, SECRET_KEY);
-    // Should this functionality be inside the authenticate function?
 
     return res.json({ token });
 
@@ -34,21 +35,23 @@ router.post('/login', async function (req, res, next) {
 */
 router.post('/register', async function(req, res, next) {
   if (req.body === undefined) throw new BadRequestError();
-    const { username, password, first_name, last_name, phone } = req.body;
+  const { username, password, first_name, last_name, phone } = req.body;
 
   try{
     await User.register({ username, password, first_name, last_name, phone });
 
     const token = jwt.sign({ username }, SECRET_KEY);
+    // TODO: Use username returned from User.register
 
     return res.json({ token });
 
   } catch(err) {
-    throw new BadRequestError(err.message);
+    throw new BadRequestError("Invalid Username");
+    // TODO: Broaden error message
   }
-  // Should the error handling be here or in the method?
-  // Should the register method return a token?
 })
+// TODO: Also update login timer here
+
 
 
 

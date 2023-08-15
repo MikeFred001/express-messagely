@@ -11,16 +11,12 @@ const {
 } = require('../middleware/auth');
 
 
-
-// {
-// 	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QzIiwiaWF0IjoxNjkyMTE5MTk1fQ.r_D1y-_2swLPJT4302PbTuruM37RGUDk3O71YVLxd4w"
-// }
-
 /** GET / - get list of users.
  *
  * => {users: [{username, first_name, last_name}, ...]}
  *
  **/
+// TODO: update docstring with middleware info
 router.get('/', ensureLoggedIn, async function (req, res, next) {
   const users = await User.all();
 
@@ -34,6 +30,7 @@ router.get('/', ensureLoggedIn, async function (req, res, next) {
  * => {user: {username, first_name, last_name, phone, join_at, last_login_at}}
  *
  **/
+// TODO: update docstring with middleware details
 router.get('/:username', ensureCorrectUser, async function (req, res, next) {
   const user = await User.get(req.params.username);
 
@@ -53,6 +50,7 @@ router.get('/:username', ensureCorrectUser, async function (req, res, next) {
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+// TODO: update docstring with middleware details
 router.get('/:username/to', ensureCorrectUser, async function (req, res, next) {
   const messages = await User.messagesTo(req.params.username);
 
@@ -69,6 +67,7 @@ router.get('/:username/to', ensureCorrectUser, async function (req, res, next) {
  *                 to_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+// TODO: update docstring with middleware details
 router.get('/:username/from', ensureCorrectUser, async function (req, res, next) {
   const messages = await User.messagesFrom(req.params.username);
 
