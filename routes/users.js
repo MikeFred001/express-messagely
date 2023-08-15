@@ -1,7 +1,6 @@
 "use strict";
 
 const Router = require("express").Router;
-const { NotFoundError } = require("../expressError");
 const User = require("../models/user");
 const router = new Router();
 
